@@ -378,11 +378,12 @@ module MacroDeck
 								parent_path << path_components[0..(path_components.length - 3)].join("/")
 							end
 
-							# Append the parent minus the value.
-							parent_key = path_components[path_components.length - 3].split("=")[0]
+							# Append the second to last key minus the value
+							parent_key = path_components[-2].split("=")[0]
 							parent_path << parent_key
 
 							puts "[MacroDeck::TurkEventProcessor] Parent path = #{parent_path}"
+							puts "[MacroDeck::TurkEventProcessor] Parent key = #{parent_key}"
 							parent_answers = response_tree.value_at_path(parent_path)
 
 							make_child = true
