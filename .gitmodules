@@ -1,3 +1,9 @@
 [submodule "vendor/macrodeck-app"]
 	path = vendor/macrodeck-app
 	url = git@github.com:ziggythehamster/macrodeck-app.git
+[submodule "vendor/rturk"]
+	path = vendor/rturk
+	url = git@github.com:ziggythehamster/rturk.git
+[submodule "vendor/macrodeck-platform"]
+	path = vendor/macrodeck-platform
+	url = git@github.com:ziggythehamster/macrodeck-platform.git
