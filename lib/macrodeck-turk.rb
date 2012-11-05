@@ -85,6 +85,10 @@ module MacroDeck
 				annotation = {}
 			end
 
+			# Replace a double // at the beginning with just a /.
+			# Works around a bug elsewhere in this code.
+			annotation["path"].gsub!(/^\/\//, "/")
+
 			puts "HIT Path: #{annotation["path"]}"
 
 			path_components = annotation["path"].split("/")[1..-1]
@@ -132,6 +136,7 @@ module MacroDeck
 							raise "Turk task lookup failed!"
 						end
 					else
+						puts "[Turk GET /:id] Looking up turk task with ID #{path_components[idx]}"
 						tt = obj.class.turk_task_by_id(path_components[idx])
 
 						if tt
