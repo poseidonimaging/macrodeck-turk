@@ -221,6 +221,7 @@ module MacroDeck
 					begin
 						# Get the item we're operating on.
 						item = ::DataObject.get(annotation["item_id"])
+						item.turk_created_paths ||= []
 						item.turk_responses ||= {}
 						item.turk_events ||= {}
 						item.turk_events["hit_reviewable"] ||= {}
@@ -311,7 +312,7 @@ module MacroDeck
 										resp = { resp_key => [ answer ] }
 										path = "/#{resp_key}=#{answer}/#{tt.id}"
 
-										if tt.prerequisites_met?(resp) && !tt.answered?(resp)
+										if !item.turk_created_paths.include?(path) && tt.prerequisites_met?(resp) && !tt.answered?(resp)
 											create_hit({
 												"item_id" => item.id,
 												"path" => path
@@ -348,10 +349,13 @@ module MacroDeck
 
 									if tt.prerequisites_met?(item.turk_responses) && !tt.answered?(item.turk_responses)
 										path = "/#{resp_key}/#{tt.id}"
-										create_hit({
-											"item_id" => item.id,
-											"path" => path
-										})
+
+										unless item.turk_created_paths.include?(path)
+											create_hit({
+												"item_id" => item.id,
+												"path" => path
+											})
+										end
 									end
 								end
 							end
@@ -395,19 +399,26 @@ module MacroDeck
 								# Check if answered
 								begin
 									sibling_result = response_tree.at_path("#{parent_path}=#{answer}")
-									if !sibling_result.key?(resp_key)
-										puts "[MacroDeck::TurkEventProcessor] Nope! (Chuck Testa.)"
 
-										make_child = false
+									if sibling_result.key?(resp_key)
+										puts "[MacroDeck::TurkEventProcessor] Sibling exists. Not creating a HIT."
+									else
+										puts "[MacroDeck::TurkEventProcessor] Nope! (Chuck Testa.)"
 
 										path = "/#{path_components[0..-3].join("/")}/#{parent_key}=#{answer}/#{resp_key}"
 
-										create_hit({
-											"item_id" => item.id,
-											"path" => path
-										})
+										if item.turk_created_paths.include?(path)
+											puts "[MacroDeck::TurkEventProcessor] But that's odd, looks like we already created #{path}"
+										else
+											make_child = false
 
-										break
+											create_hit({
+												"item_id" => item.id,
+												"path" => path
+											})
+
+											break
+										end
 									end
 								rescue MacroDeck::TurkResponseTree::InvalidPathError
 									puts "[MacroDeck::TurkEventProcessor] Path #{parent_path}=#{answer} invalid!"
@@ -429,10 +440,12 @@ module MacroDeck
 										if tt.prerequisites_met?(item.turk_responses) && !tt.answered?(item.turk_responses)
 											path = "/#{path_components.join("/")}/#{tt.id}"
 
-											create_hit({
-												"item_id" => item.id,
-												"path" => path
-											})
+											unless item.turk_created_paths.include?(path)
+												create_hit({
+													"item_id" => item.id,
+													"path" => path
+												})
+											end
 										end
 									end
 								end
@@ -450,10 +463,13 @@ module MacroDeck
 									puts "[MacroDeck::TurkEventProcessor] Checking if #{tt.id} is answered..."
 									if tt.prerequisites_met?(item.turk_responses) && !tt.answered?(item.turk_responses)
 										path = "#{annotation["path"]}/#{tt.id}"
-										create_hit({
-											"item_id" => item.id,
-											"path" => path
-										})
+
+										unless item.turk_created_paths.include?(path)
+											create_hit({
+												"item_id" => item.id,
+												"path" => path
+											})
+										end
 									end
 								end
 							end
@@ -510,6 +526,28 @@ module MacroDeck
 					h.note = { "item_id" => params["item_id"], "path" => params["path"] }.to_json
 					h.question("#{@configuration.base_url}/turk/#{params["item_id"]}")
 					h.hit_review_policy("SimplePlurality/2011-09-01", @configuration.hit_review_policy_defaults)
+				end
+
+				# Update the turk created paths list.
+				puts "[MacroDeck::TurkEventProcessor] Updating turk_created_paths..."
+				retries = 0
+
+				begin
+					# Get the item we're operating on.
+					item = ::DataObject.get(params["item_id"])
+					item.turk_created_paths ||= []
+					item.turk_created_paths << params["path"]
+					item.save
+				rescue RestClient::Conflict
+					# We had a conflict. See assignment accepted for explanation.
+
+					if retries < 10
+						retries += 1
+						puts "[MacroDeck::TurkEventProcessor] 409 Conflict while saving - retry #{retries}"
+						retry
+					else
+						puts "[MacroDeck::TurkEventProcessor] 409 Conflict while saving - giving up"
+					end
 				end
 
 				@hits_created += 1
