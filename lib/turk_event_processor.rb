@@ -353,6 +353,7 @@ module MacroDeck
 										unless item.turk_created_paths.include?(path)
 											create_hit({
 												"item_id" => item.id,
+												"type_id" => @hit.type_id,
 												"path" => path
 											})
 										end
@@ -414,6 +415,7 @@ module MacroDeck
 
 											create_hit({
 												"item_id" => item.id,
+												"type_id" => @hit.type_id,
 												"path" => path
 											})
 
@@ -443,6 +445,7 @@ module MacroDeck
 											unless item.turk_created_paths.include?(path)
 												create_hit({
 													"item_id" => item.id,
+													"type_id" => @hit.type_id,
 													"path" => path
 												})
 											end
@@ -467,6 +470,7 @@ module MacroDeck
 										unless item.turk_created_paths.include?(path)
 											create_hit({
 												"item_id" => item.id,
+												"type_id" => @hit.type_id,
 												"path" => path
 											})
 										end
@@ -515,12 +519,12 @@ module MacroDeck
 			# Common method that creates a HIT during processing.
 			# Not meant to be called directly.
 			# params accepted:
-			# item_id, path, multiple_answer
+			# item_id, type_id, path, multiple_answer
 			def create_hit(params = {})
-				puts "[MacroDeck::TurkEventProcessor] Creating HIT. ItemID=#{params["item_id"]} Path=#{params["path"]}"
+				puts "[MacroDeck::TurkEventProcessor] Creating HIT. ItemID=#{params["item_id"]} TypeID=#{params["type_id"]} Path=#{params["path"]}"
 
 				hit = RTurk::Hit.create do |h|
-					h.hit_type_id = @configuration.turk_hit_type_id
+					h.hit_type_id = params["type_id"]
 					h.assignments = 2
 					h.lifetime = 604800
 					h.note = { "item_id" => params["item_id"], "path" => params["path"] }.to_json
