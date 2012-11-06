@@ -315,6 +315,7 @@ module MacroDeck
 										if !item.turk_created_paths.include?(path) && tt.prerequisites_met?(resp) && !tt.answered?(resp)
 											create_hit({
 												"item_id" => item.id,
+												"type_id" => @hit.type_id,
 												"path" => path
 											})
 										else
