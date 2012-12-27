@@ -4,6 +4,3 @@
 [submodule "vendor/rturk"]
 	path = vendor/rturk
 	url = git@github.com:ziggythehamster/rturk.git
-[submodule "vendor/macrodeck-platform"]
-	path = vendor/macrodeck-platform
-	url = git@github.com:ziggythehamster/macrodeck-platform.git
