@@ -1,3 +1,20 @@
+GIT
+  remote: git://github.com/ziggythehamster/macrodeck-platform.git
+  revision: d652241ea8b604da3b861eee1ea18a675498f884
+  specs:
+    macrodeck-platform (1.0.0)
+      couchrest (~> 1.0.1)
+      couchrest_extended_document (~> 1.0.0)
+      validatable
+      validatable-validates_list_items_in_list
+
+GIT
+  remote: git://github.com/ziggythehamster/validatable-validates_list_items_in_list.git
+  revision: 5d2397bdb03c0b95492e031241359dc0b2e7f07a
+  specs:
+    validatable-validates_list_items_in_list (0.0.1)
+      validatable
+
 GEM
   remote: http://rubygems.org/
   remote: http://gems.github.com/
@@ -17,9 +34,6 @@ GEM
       mime-types (>= 1.15)
     i18n (0.6.1)
     json (1.5.4)
-    macrodeck-platform (1.0.0)
-      couchrest (~> 1.0.1)
-      couchrest_extended_document (~> 1.0.0)
     mime-types (1.19)
     multi_json (1.5.0)
     rack (1.4.1)
@@ -32,10 +46,12 @@ GEM
       rack-protection (~> 1.2)
       tilt (>= 1.3.3, ~> 1.3)
     tilt (1.3.3)
+    validatable (1.6.7)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  macrodeck-platform
+  macrodeck-platform!
   sinatra
+  validatable-validates_list_items_in_list!
