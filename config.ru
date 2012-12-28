@@ -9,7 +9,7 @@ require "rubygems"
 require "builder"
 require "sinatra"
 require "vendor/rturk/lib/rturk"
-require "vendor/macrodeck-platform/init"
+require "macrodeck-platform"
 require "macrodeck-turk"
 require "macrodeck-config"
 require "macrodeck-behavior"
@@ -43,7 +43,7 @@ puts ">>> MacroDeck Platform started."
 map cfg.turk_path_prefix do
 	MacroDeck::Turk.configuration = cfg
 	MacroDeck::Turk.set :views, File.join(File.dirname(__FILE__), ::MacroDeck::Turk.configuration.view_dir.to_s)
-	MacroDeck::Turk.set :public, File.join(File.dirname(__FILE__), "public")
+	MacroDeck::Turk.set :public_folder, File.join(File.dirname(__FILE__), "public")
 
 	run MacroDeck::Turk
 end
